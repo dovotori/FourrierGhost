@@ -2,8 +2,9 @@
 
 Node::Node()
 {
-    this->x = this->y = this->z = 0.0;
-    this->damping = 0.5;
+    this->position.set(0.0, 0.0, 0.0);
+    this->velocity.set(0.0, 0.0, 0.0);
+    this->damping = 0.99;
 }
 
 
@@ -17,9 +18,7 @@ float Node::maxZ = 1000;
 
 void Node::setup(float x, float y, float z)
 {
-    this->x = x;
-    this->y = y;
-    this->z = z;
+    this->position.set(x, y, z);
 }
 
 
@@ -36,50 +35,49 @@ Node::~Node()
 void Node::update(bool lockX, bool lockY, bool lockZ)
 {
 
-    this->pVelocity = this->velocity;
 
-    if(!lockX){ this->x += this->velocity.x; }
-    if(!lockY){ this->y += this->velocity.y; }
-    if(!lockZ){ this->z += this->velocity.z; }
+    if(!lockX){ this->position.x += this->velocity.x; }
+    if(!lockY){ this->position.y += this->velocity.y; }
+    if(!lockZ){ this->position.z += this->velocity.z; }
 
 
-    if(this->x < Node::minX)
+    if(this->position.x < Node::minX)
     {
-        this->x = Node::minX - (this->x - Node::minX);
-        this->velocity.x = -this->velocity.x;
+        this->position.x = Node::minX - (this->position.x - Node::minX);
+        this->velocity.x *= -1;
     }
 
-    if(this->x > Node::maxX)
+    if(this->position.x > Node::maxX)
     {
-        this->x = Node::maxX - (this->x - Node::maxX);
-        this->velocity.x = -this->velocity.x;
+        this->position.x = Node::maxX - (this->position.x - Node::maxX);
+        this->velocity.x *= -1;
     }
 
-    if(this->y < Node::minY)
+    if(this->position.y < Node::minY)
     {
-        this->y = Node::minY - (this->y - Node::minY);
-        this->velocity.y = -this->velocity.y;
+        this->position.y = Node::minY - (this->position.y - Node::minY);
+        this->velocity.y *= -1;
     }
 
-    if(this->y > Node::maxY)
+    if(this->position.y > Node::maxY)
     {
-        this->y = Node::maxY - (this->y - Node::maxY);
-        this->velocity.y = -this->velocity.y;
+        this->position.y = Node::maxY - (this->position.y - Node::maxY);
+        this->velocity.y *= -1;
     }
 
-    if(this->z < Node::minZ)
+    if(this->position.z < Node::minZ)
     {
-        this->z = Node::minZ - (this->z - Node::minZ);
-        this->velocity.z = -this->velocity.z;
+        this->position.z = Node::minZ - (this->position.z - Node::minZ);
+        this->velocity.z *= -1;
     }
 
-    if(this->z > Node::maxZ)
+    if(this->position.z > Node::maxZ)
     {
-        this->z = Node::maxZ - (this->z - Node::maxZ);
-        this->velocity.z = -this->velocity.z;
+        this->position.z = Node::maxZ - (this->position.z - Node::maxZ);
+        this->velocity.z *= -1;
     }
 
-    this->velocity * (1 - this->damping);
+    this->velocity *= this->damping;
 
 }
 
@@ -88,11 +86,11 @@ void Node::update(bool lockX, bool lockY, bool lockZ)
 void Node::setBox(float minX, float minY, float minZ, float maxX, float maxY, float maxZ)
 {
         Node::minX = minX;
-        Node::minX = minY;
-        Node::minX = minZ;
+        Node::minY = minY;
+        Node::minZ = minZ;
         Node::maxX = maxX;
-        Node::maxX = maxY;
-        Node::maxX = maxZ;
+        Node::maxY = maxY;
+        Node::maxZ = maxZ;
 }
 
 

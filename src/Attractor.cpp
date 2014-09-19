@@ -2,12 +2,10 @@
 
 Attractor::Attractor()
 {
-    this->x = 0;
-    this->y = 0;
-    this->z = 0;
-    this->radius = 200.0;
-    this->strength = -10.0;
-    this->ramp = 0.99;
+    this->position.set(0.0, 0.0, 0.0);
+    this->radius = 50.0;
+    this->strength = -10000.0;
+    this->ramp = 1.0;
 }
 
 
@@ -19,30 +17,30 @@ Attractor::~Attractor()
 
 void Attractor::setup(float x, float y, float z)
 {
-    this->x = x;
-    this->y = y;
-    this->z = z;
+    this->position.set(x, y, z);
 }
 
 
 
 void Attractor::attract(Node *node)
 {
-    float dx = this->x - node->x;
-    float dy = this->y - node->y;
-    float dz = this->z - node->z;
+
+    float dx = this->position.x - node->getX();
+    float dy = this->position.y - node->getY();
+    float dz = this->position.z - node->getZ();
     float distance = sqrt((dx * dx) + (dy * dy) + (dz * dz));
 
     if(distance > 0 && distance < this->radius)
     {
         float s = distance / this->radius;
-		float puissance = this->ramp*0.5;
-        float force = 1 / pow(s, puissance) - 1;
-        force = this->strength * force/this->radius;
+        float force = 1 / pow(s, (float)(0.5 * this->ramp)) - 1;
+        force = this->strength * force / this->radius;
 
-        node->velocity.x += dx * force;
-        node->velocity.y += dy * force;
-        node->velocity.z += dz * force;
+        ofVec3f ajout, current, resultat;
+        current = node->getVelocity();
+        ajout.set(dx * force, dy * force, dz * force);
+        resultat = current + ajout;
+        node->setVelocity(resultat.x, resultat.y, resultat.z);
 
     }
 }

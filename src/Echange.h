@@ -17,6 +17,7 @@ class Echange
         void draw();
         float* getVar();
         inline bool getClick(){ return this->click; }
+        inline bool getDraw(int index){ return this->isDraw[index]; }
 
     protected:
     private:
@@ -25,6 +26,7 @@ class Echange
         unsigned int nbVariables;
 
         bool click;
+        bool isDraw[NB_VAR_MAX];
 };
 
 #endif // ECHANGE_H

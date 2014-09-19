@@ -1,7 +1,8 @@
 #ifndef RAYPICKING_H
 #define RAYPICKING_H
 
-#include "Vecteur3d.h"
+
+#include "Camera.h"
 #include "ofMain.h"
 
 class RayPicking
@@ -9,13 +10,13 @@ class RayPicking
     public:
         RayPicking();
         virtual ~RayPicking();
-        void setup();
-        void draw();
-        void update();
+        void update(int x, int y, Camera camera);
+
+        ofVec3f getPositionSurRayon(Camera camera);
 
     protected:
     private:
-        Vecteur3D clickPosInWorld, direction;
+        ofVec3f rayon;
 
 };
 

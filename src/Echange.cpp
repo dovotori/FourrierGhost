@@ -14,7 +14,7 @@ Echange::~Echange()
 void Echange::setup()
 {
     this->nbVariables = 3;
-    //for(int i = 0; i < NB_VAR_MAX; i++){ this->variables[i] = 0.0; }
+    for(int i = 0; i < NB_VAR_MAX; i++){ this->variables[i] = 0.0; this->isDraw[i] = false; }
     receiver.setup(PORT);
     this->click = false;
 }
@@ -47,6 +47,7 @@ void Echange::update()
 
             if(m.getAddress() == "/tfg/mousePressed"){
                 if(m.getArgAsInt32(i) == 0){ this->click = true; } else { this->click = false; }
+                cout << m.getArgAsInt32(i) << endl;
             }
 
             /*
@@ -76,7 +77,7 @@ void Echange::update()
 void Echange::draw()
 {
 
-    //cout << "nombre de variables:" << this->nbVariables << endl;
+    cout << "nombre de variables:" << this->nbVariables << endl;
 
 }
 

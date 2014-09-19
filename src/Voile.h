@@ -2,7 +2,6 @@
 #define VOILE_H
 
 #include "ofMain.h"
-#include "ofxTimer.h"
 #include "Loadobj.h"
 
 class Voile
@@ -14,12 +13,13 @@ class Voile
         void update();
         void draw();
         void interaction(int key);
+
+        inline void setOpacity(float value){ this->shader.begin(); this->shader.setUniform1f("opacity", value); this->shader.end(); };
+
     protected:
     private:
         ofMesh screen;
         ofShader shader;
-        float cpt, opacity;
-        ofxTimer timer;
 };
 
 #endif // VOILE_H

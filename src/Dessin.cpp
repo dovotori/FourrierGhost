@@ -2,46 +2,67 @@
 
 Dessin::Dessin()
 {
-    //ctor
+
 }
 
 Dessin::~Dessin()
 {
-    //dtor
+
 }
 
 
 void Dessin::setup()
 {
-    /*Forme::common();
-    for(int i = 0; i < NB_FORMES; i++)
-    {
-        this->forme[i].setup();
-        this->forme[i].setPosition(ofRandom(-4.0, 4.0), ofRandom(-4.0, 4.0), ofRandom(-4.0, 4.0));
-        this->forme[i].setSize(ofRandom(2.0, 6.0), ofRandom(0.01, 0.1), ofRandom(0.01, 0.1));
-        this->forme[i].setSpeed(ofRandom(-0.2, 0.2));
-    }*/
-    this->imgMesh.setup();
+    Forme::common();
+    this->forme.setup();
+    this->grille.setup(100, 2.0);
+    this->grille.setStrength(0.1);
+    this->echange.setup();
+
+	int nbLiaison = this->grille.getNbNodes();
+	if(nbLiaison > this->forme.getNbPoints()){ nbLiaison = this->forme.getNbPoints(); }
+
+    this->liaison.setup(nbLiaison);
+    this->liaison.setColor(255, 100, 100, 0.2);
+    this->voile.setup();
 }
 
 
 void Dessin::update()
 {
-    /*for(int i = 0; i < NB_FORMES; i++)
-    {
-        this->forme[i].update();
-    }*/
-    //this->imgMesh.update();
+    this->echange.update();
+    this->forme.update();
+	this->grille.update(this->liaison.getNb(), this->liaison.getMesh(), this->forme.getMesh(), this->forme.getModelMatrix());
+    if(this->echange.getDraw(3)){ this->voile.update(); }
 }
 
 
-void Dessin::draw()
+void Dessin::draw(Camera camera)
 {
-    /*for(int i = 0; i < NB_FORMES; i++)
-    {
-        this->forme[i].draw();
-    }*/
-    this->imgMesh.draw();
+
+    this->grille.setRotation(0.1, 1.0, 1.0, 0.0);
+    this->grille.draw(&camera);
+    this->forme.draw(&camera);
+    this->liaison.draw(&camera);
+
+    if(this->echange.getDraw(3)){ this->voile.draw(); }
 }
 
+
+
+//--------------------------------------------------------------
+void Dessin::mouseDragged(int x, int y){
+    this->grille.setAttractorPosition(x, y, ofRandom(-10.0, 10.0));
+}
+
+//--------------------------------------------------------------
+void Dessin::mousePressed(){
+    this->grille.setActive(true);
+}
+
+//--------------------------------------------------------------
+void Dessin::mouseReleased(){
+	//this->grille.reset();
+    this->grille.setActive(false);
+}
 

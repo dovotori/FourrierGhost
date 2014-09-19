@@ -1,8 +1,8 @@
 #ifndef NODE_H
 #define NODE_H
 
+#include "ofMain.h"
 #include <math.h>
-#include "Vecteur3d.h"
 
 using namespace std;
 
@@ -10,8 +10,6 @@ using namespace std;
 class Node
 {
     public:
-        float x, y, z;
-        Vecteur3D velocity;
         Node();
         void setup(float x = 0, float y = 0, float z = 0);
         virtual ~Node();
@@ -20,10 +18,18 @@ class Node
 
         static void setBox(float minX, float minY, float minZ, float maxX, float maxY, float maxZ);
 
+        inline float getX(){ return this->position.x; }
+        inline float getY(){ return this->position.y; }
+        inline float getZ(){ return this->position.z; }
+
+        inline ofVec3f getVelocity(){ return this->velocity; }
+        inline void setVelocity(float x = 0, float y = 0, float z = 0){ this->velocity.set(x, y, z); }
+
     protected:
     private:
+        ofVec3f position;
+        ofVec3f velocity;
         static float minX, minY, minZ, maxX, maxY, maxZ;
-        Vecteur3D pVelocity;
         float damping;  // ralentissement
 
 };

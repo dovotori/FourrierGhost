@@ -1,10 +1,15 @@
 #ifndef DESSIN_H
 #define DESSIN_H
 
-#define NB_FORMES 100
 
+#include "ofMain.h"
+#include "GrilleAttractor.h"
 #include "Forme.h"
-#include "ImageMesh.h"
+#include "Liaison.h"
+#include "Echange.h"
+#include "Voile.h"
+#include "Camera.h"
+
 
 class Dessin
 {
@@ -13,11 +18,21 @@ class Dessin
         virtual ~Dessin();
         void setup();
         void update();
-        void draw();
+        void draw(Camera camera);
+
+        void mouseDragged(int x, int y);
+        void mousePressed();
+        void mouseReleased();
+
     protected:
     private:
-         Forme forme[NB_FORMES];
-         ImageMesh imgMesh;
+        GrilleAttractor grille;
+        Forme forme;
+        Liaison liaison;
+        Voile voile;
+
+
+        Echange echange;
 
 };
 

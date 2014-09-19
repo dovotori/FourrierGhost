@@ -11,76 +11,71 @@ GrilleAttractor::~GrilleAttractor()
 }
 
 
-void GrilleAttractor::setup()
+void GrilleAttractor::setup(int nbNode, float distanceInterval)
 {
     ofEnablePointSprites();
-    //Node::setBox(-ofGetWidth()/2, -ofGetHeight()/2, -10, ofGetWidth()/2, ofGetHeight()/2, 10);
-    int cpt = 0;
-    this->node.reserve(NB_NODES*NB_NODES);
+    this->nbNodes = nbNode;
+    this->distanceInterval = distanceInterval;
+    this->node.reserve(nbNodes*nbNodes);
+	vector<ofVec3f> vert(nbNodes*nbNodes);
+    for(int i = 0; i < nbNodes*nbNodes; i++){ vert[i].set(0.0, 0.0, 0.0); }
+	this->mesh.setVertexData( &vert[0], nbNodes*nbNodes, GL_STREAM_DRAW );
 
-    for(int y = -NB_NODES/2; y < NB_NODES/2; y++)
-    {
-        for(int x = -NB_NODES/2; x < NB_NODES/2; x++)
-        {
-            this->node[cpt] = Node();
-            this->node[cpt].setup(x*4, y*4 , 0);
-            ofVec3f point(x*4, y*4 , 0);
-            this->mesh.addVertex(point);
-            cpt ++;
-        }
-    }
-
+    this->reset();
     this->attractor.setup();
-
-    this->mesh.setMode(OF_PRIMITIVE_POINTS);
     this->shader.load("shader/attractor");
-    this->click = false;
+
+    this->setColor(255.0, 255.0, 255.0, 1.0);
+    this->setPointWeight(1.0);
+    this->isActive = false;
+    this->model.makeIdentityMatrix();
+
 }
 
 
 
 
-void GrilleAttractor::draw(ofCamera cam, int mouseX, int mouseY)
+void GrilleAttractor::update(unsigned int nbLiaison, ofVbo *meshLiaison, ofVboMesh *formeMesh, ofMatrix4x4 formeView)
 {
-
-
-	ofVec2f mouse(mouseX, mouseY);
-
-    float nearestDistance = 0;
-
-    for(int i = 0; i < NB_NODES*NB_NODES; i++)
+    // APPLIQUE LES COOR POUR LA GRILLE
+	vector<ofVec3f> vert(this->nbNodes*this->nbNodes);
+    for(int i = 0; i < this->nbNodes*this->nbNodes; i++)
     {
-        /*
-        // trait plus proche entre node et la souris
-        ofVec3f cur = cam.worldToScreen(this->mesh.getVertex(i));
-        float distance = cur.distance(mouse);
-        if(i == 0 || distance < nearestDistance) {
-			nearestDistance = distance;
-			this->nearestVertex = cur;
-		}
-		*/
-
-        if(this->click)
+        if(this->isActive)
         {
             this->attractor.attract(&this->node[i]);
         }
         this->node[i].update();
-
-        ofVec3f vert = this->mesh.getVertex(i);
-        vert.x = this->node[i].x;
-        vert.y = this->node[i].y;
-        vert.z = this->node[i].z;
-        this->mesh.setVertex(i, vert);
-
+        vert[i].set(this->node[i].getX(), this->node[i].getY(), this->node[i].getZ());
     }
+    this->mesh.updateVertexData(&vert[0], this->nbNodes*this->nbNodes);
 
-    ofPushMatrix();
+
+    // APPLIQUE LES COOR POUR LES LIAISONS
+    unsigned int cptLiaison = 0;
+    vector<ofVec3f> vertLiaison(nbLiaison*2);
+    for(int i = 0; i < nbLiaison; i++, cptLiaison += 2)
+    {
+        int mapI = ofMap(i, 0, nbLiaison, 0, this->nbNodes*this->nbNodes);
+        vertLiaison[cptLiaison].set(vert[mapI] * this->model);
+        vertLiaison[cptLiaison+1].set(formeMesh->getVertex(i) * formeView);
+    }
+	meshLiaison->updateVertexData(&vertLiaison[0], nbLiaison*2);
+
+}
+
+
+
+
+void GrilleAttractor::draw(Camera *camera)
+{
+
     this->shader.begin();
-    this->mesh.draw();
+    this->shader.setUniformMatrix4f("model", this->model);
+    this->shader.setUniformMatrix4f("view", camera->getViewMatrix());
+    this->shader.setUniformMatrix4f("projection", camera->getProjectionMatrix());
+    this->mesh.draw(GL_POINTS, 0, nbNodes*nbNodes);
     this->shader.end();
-    ofPopMatrix();
-
-
 
 }
 
@@ -88,26 +83,25 @@ void GrilleAttractor::draw(ofCamera cam, int mouseX, int mouseY)
 
 void GrilleAttractor::reset(){
 
+	vector<ofVec3f> vert(nbNodes*nbNodes);
     int cpt = 0;
-    for(int y = -NB_NODES/2; y < NB_NODES/2; y++)
+
+    for(int y = -nbNodes/2; y < nbNodes/2; y++)
     {
-        for(int x = -NB_NODES/2; x < NB_NODES/2; x++)
+        for(int x = -nbNodes/2; x < nbNodes/2; x++)
         {
+            float posX = x * distanceInterval;
+            float posY = y * distanceInterval;
             this->node[cpt] = Node();
-            this->node[cpt].setup(x*4, y*4 , 0);
-            ofVec3f point(x*4, y*4 , 0);
-            this->mesh.setVertex(cpt, point);
+            this->node[cpt].setup(posX, posY, 0);
+
+			vert[cpt].set(posX, posY, 0);
             cpt ++;
         }
     }
-
+	this->mesh.updateVertexData(&vert[0], nbNodes*nbNodes);
 }
 
-
-void GrilleAttractor::interaction(int x, int y)
-{
-    this->attractor.setPosition(x, y);
-}
 
 
 
